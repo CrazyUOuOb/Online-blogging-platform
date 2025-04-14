@@ -7,6 +7,14 @@ include 'db_connect.php';
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ECF51EJ15B"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ECF51EJ15B');
+    </script>
     <title>Online blogging platform</title>
     <link rel="stylesheet" type="text/css" href="indexstyle.css">
 </head>
