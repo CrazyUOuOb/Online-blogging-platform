@@ -15,6 +15,7 @@ include 'db_connect.php';
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
+    
     <title>Online blogging platform</title>
     <link rel="stylesheet" type="text/css" href="indexstyle.css">
 </head>
