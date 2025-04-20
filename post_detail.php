@@ -1,13 +1,15 @@
 <?php
 include 'db_connect.php';
 
+# Check if user is logged in
 if (!isset($_COOKIE['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_COOKIE['user_id'];
+$user_id = $_COOKIE['user_id']; # Get user ID from cookie
 
+# Get user role and display name
 $sql = "SELECT role, display_name FROM users WHERE id = '$user_id'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -19,18 +21,22 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+# Check if post ID is set in the URL
 $post_id = isset($_GET['post_id']) ? (int)$_GET['post_id'] : 0;
 
+# select post details and its user display name
 $sql = "SELECT posts.*, users.display_name 
         FROM posts 
         JOIN users ON posts.user_id = users.id 
         WHERE posts.post_id = $post_id";
 $result = $conn->query($sql);
 
+# Check if post exists
 if ($result->num_rows === 0) {
-    die("Post not found!");
+    echo "Post not found!";
 }
 
+# save the post details in a variable
 $post = $result->fetch_assoc();
 ?>
 
@@ -46,10 +52,10 @@ $post = $result->fetch_assoc();
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
-    
+
+    <!--- Dynamic heading using current post title name -->
     <title><?= $post['title'] ?></title>
+
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
@@ -58,9 +64,11 @@ $post = $result->fetch_assoc();
             <li><a href="index.php">Home</a></li>
             <li><a href="post.php">Post</a></li>
             <li><a href="create_post.php">Create New Post</a></li>
+
             <?php if ($is_admin): ?>
                 <li><a href="manage_post.php">Manage Posts</a></li>
             <?php endif; ?>
+
             <li><a href="edit_profile.php">Edit Profile</a></li>
             <li><a href="logout.php">Logout (<?php echo $display_name; ?>)</a></li>
         </ul>
@@ -73,7 +81,10 @@ $post = $result->fetch_assoc();
                 <?= $post['display_name'] . ": " . $post['created_at'] ?>
             </p>
             <h2><?= $post['title'] ?></h2>
+            <!-- Display the content of the post -->
             <div class="content">
+                <!-- Use nl2br to convert new lines to <br> tags -->
+                <!-- Keep the 'enter' value for next line -->
                 <?= nl2br(htmlspecialchars($post['content'], ENT_QUOTES)) ?>
             </div>
 
@@ -87,26 +98,34 @@ $post = $result->fetch_assoc();
                 <hr>
                 <h3>Comments</h3>
                 <?php
+                # Get all the comments by the current post ID
                 $sql = "SELECT comments.*, users.display_name 
                         FROM comments 
                         JOIN users ON comments.user_id = users.id 
                         WHERE post_id = $post_id
                         ORDER BY created_at ASC";
+                # store the sql result in $comments_result
                 $comments_result = $conn->query($sql);
                 ?>
 
                 <?php if ($comments_result->num_rows > 0): ?>
                     <?php while ($comment = $comments_result->fetch_assoc()): ?>
+                        <!-- Display each comment with user display name and created date -->
                         <div class="comment">
                             <p class="comment_meta">
                                 <?= $comment['display_name'] . ": " . $comment['created_at'] ?>
                             </p>
+
                             <p class="comment_content">
+                                <!-- Use nl2br to convert new lines to <br> tags -->
+                                <!-- Keep the 'enter' value for next line -->
                                 <?= nl2br(htmlspecialchars($comment['content'], ENT_QUOTES, 'UTF-8')) ?>
                             </p>
+
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
+                    <!-- If no comments are found, display a message -->
                     <p>No comments here.</p>
                 <?php endif; ?>
 
