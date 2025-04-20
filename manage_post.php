@@ -1,13 +1,14 @@
 <?php
 include 'db_connect.php';
 
-if (!isset($_COOKIE['user_id'])) {
+if (!isset($_COOKIE['user_id'])) { # Check if user is logged in
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_COOKIE['user_id'];
+$user_id = $_COOKIE['user_id']; # Get user ID from cookie
 
+# Check if user is admin
 $sql = "SELECT role FROM users WHERE id = '$user_id'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -18,16 +19,18 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+# If user is not admin, redirect to post.php
 if ($is_admin !== True) {
     header("Location: post.php");
     exit();
 } 
 
+# Get user display name
 $sql = "SELECT display_name 
         FROM users 
         WHERE id='$user_id'";
-$result = $conn->query($sql);
-if ($result->num_rows > 0) {
+$result = $conn->query($sql); # Get the SQL result
+if ($result->num_rows > 0) { 
     $row = $result->fetch_assoc();
     $display_name = $row['display_name'];
 } else {
@@ -35,22 +38,27 @@ if ($result->num_rows > 0) {
     exit();
 }
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_post'])) {
-    $post_id = $_POST['post_id'];
+# Handle post deletion
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['delete_post'])) { # Check if delete post button was clicked and post ID was set
+    $post_id = $_POST['post_id']; # Get post ID from form hidden input
     
+    # Delete comments associated with the post before deleting the post itself
     $sql = "DELETE FROM comments WHERE post_id = '$post_id'";
     $conn->query($sql);
 
+    # Delete the post from the database
     $sql = "DELETE FROM posts WHERE post_id = '$post_id'";
     $conn->query($sql);
 
+    ## Redirect to manage_post.php after deletion
     header("Location: manage_post.php");
     exit();
 }
 
+# List all posts with user display name
 $sql_list_posts = $conn->query("SELECT posts.*, users.display_name 
                       FROM posts 
-                      JOIN users ON posts.user_id = users.id 
+                      JOIN users ON posts.user_id = users.id #
                       ORDER BY created_at DESC");
 ?>
 
@@ -65,8 +73,6 @@ $sql_list_posts = $conn->query("SELECT posts.*, users.display_name
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
     
     <title>Manage Posts</title>
     <link rel="stylesheet" type="text/css" href="style.css">
@@ -89,19 +95,23 @@ $sql_list_posts = $conn->query("SELECT posts.*, users.display_name
         <h1>Manage Posts</h1>
         
         <?php if ($sql_list_posts->num_rows > 0): ?>
-            <?php while ($post = $sql_list_posts->fetch_assoc()): ?>
+            <!-- Fetch each post from the result set -->
+            <?php while ($post = $sql_list_posts->fetch_assoc()): ?> 
                 <div class="post">
                     <form method="POST" style="float: right">
                         <input type="hidden" name="post_id" value="<?= $post['post_id'] ?>">
                         <button type="submit" name="delete_post" >Delete post</button>
                     </form>
+                    <!-- Display post title and content -->
                     <h2><h2><a class="post_detail" href="post_detail.php?post_id=<?= $post['post_id'] ?>"><?= $post['title'] ?></a></h2></h2>
+                    <!-- Display the information of user related to that post -->
                     <p class="comment_meta">
                         By <?= $post['display_name'] ?> (<?=  $post['created_at'] ?>)
                     </p>
                 </div>
             <?php endwhile; ?>
-        <?php else: ?>
+        <?php else: ?> 
+            <!-- If no posts are found, display a message -->
             <p>No posts found.</p>
         <?php endif; ?>
     </div>
