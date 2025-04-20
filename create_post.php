@@ -1,41 +1,39 @@
 <?php
 include 'db_connect.php';
 
+# Check if user is logged in
 if (!isset($_COOKIE['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_COOKIE['user_id'];
+$user_id = $_COOKIE['user_id']; # Get user ID from cookie
 
 $sql = "SELECT role, display_name FROM users WHERE id = '$user_id'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
-    $row = $result->fetch_assoc();
-    $is_admin = ($row['role'] == 'admin');
-    $display_name = $row['display_name'];
+    $row = $result->fetch_assoc(); # Fetch user role and display name
+    $is_admin = ($row['role'] == 'admin'); 
+    $display_name = $row['display_name']; 
 } else {
     echo "User not found!";
     exit();
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user_id = $_COOKIE['user_id'];
-    $title = $_POST['title'];
-    $content = ($_POST['content']);
+    $user_id = $_COOKIE['user_id']; # Get user ID from cookie
+    $title = $_POST['title']; # Get post title from input
+    $content = ($_POST['content']); # Get post content from input
 
     $sql = "INSERT INTO posts (user_id, title, content) VALUES ('$user_id', '$title', '$content')";
-    if ($conn->query($sql) === True) {
+    if ($conn->query($sql) === True) { 
+        # If the SQL query was successful, redirect to post.php
         header("Location: post.php");
         exit();
     } else {
-        echo "Error: " . $sql . "<br>" . $conn->error;
+        echo "Error: " . $sql . "<br>" . $conn->error; # Show error message
     }
-    
-    header("Location: post.php");
-    exit();
 }
-
 ?>
 
 <!DOCTYPE html>
@@ -49,8 +47,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
     
     <title>Create New Post</title>
     <link rel="stylesheet" type="text/css" href="style.css">
