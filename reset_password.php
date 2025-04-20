@@ -1,19 +1,24 @@
 <?php
 include 'db_connect.php';
 
+# Check if user is logged in
 if (!isset($_COOKIE['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
+# Get user ID from cookie
 $user = $_COOKIE['user_id'];
 
+# Get user role, username and display name 
 $sql = "SELECT id, username, display_name 
         FROM users 
         WHERE id='$user'";
 $result = $conn->query($sql);
 
+# Check if user exists
 if ($result->num_rows > 0) {
+    # set local user role, username and display name
     $row = $result->fetch_assoc();
     $username = $row['username'];
     $display_name = $row['display_name'];
@@ -22,26 +27,34 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+# Handle password reset
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    # Get form data
     $password = $_POST['password'];
     $new_password = $_POST['new_password'];
     $confirm_password = $_POST['confirm_password'];
 
+    # get the current password from the database
     $sql = "SELECT password FROM users WHERE username = '$username'";
     $result = $conn->query($sql);
     $check_password = mysqli_fetch_assoc($result);
 
+    # Check if the current password is correct
     if (!password_verify($password, $check_password['password'])) {
         echo "Invalid password!";
+    # Check if new password and confirm password match
     } else if ($new_password !== $confirm_password) {
         echo "Passwords do not match!";
     } else {
+        # Use password_hash() to hash the new password before storing it in the database
         $new_password = password_hash($new_password, PASSWORD_DEFAULT);
 
+        # Update the password in the database
         $sql = "UPDATE users 
         SET password='$new_password' 
         WHERE id='$user'";
 
+        # check for errors in executing the SQL
         if ($conn->query($sql) === TRUE) {
             echo "Password reset successful!";
         } else {
@@ -63,8 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
     
     <title>Reset password</title>
     <link rel="stylesheet" type="text/css" href="style.css">
