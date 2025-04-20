@@ -25,12 +25,14 @@ include 'db_connect.php';
             <li><a href="index.php">Home</a></li>
             <?php
             if (isset($_COOKIE['user_id'])) {
+                # Get user ID from cookie
                 $user_id = $_COOKIE['user_id'];
 
+                # Get user role and display name
                 $sql = "SELECT role, display_name FROM users WHERE id = '$user_id'";
                 $result = $conn->query($sql);
-                if ($result->num_rows > 0) {
-                    $row = $result->fetch_assoc();
+                if ($result->num_rows > 0) { # Check if user exists with role and display name by their ID
+                    $row = $result->fetch_assoc(); # store the result from sql
                     $is_admin = ($row['role'] == 'admin');
                     $display_name = $row['display_name'];
                 }  else {
@@ -44,7 +46,7 @@ include 'db_connect.php';
                 endif;
                 
                 echo '<li><a href="edit_profile.php">Edit Profile</a></li>';
-                echo '<li><a href="logout.php">Logout (' . $display_name . ')</a></li>';
+                echo '<li><a href="logout.php">Logout (' . $display_name . ')</a></li>'; # Display logout button with display name
                 
             } else {
                 echo '<li><a href="login.php">Login</a></li>';
@@ -60,7 +62,7 @@ include 'db_connect.php';
             <p>Share the information to everyone!</p>
         </header>
 
-        <?php if (!isset($_COOKIE['user_id'])): ?>
+        <?php if (!isset($_COOKIE['user_id'])): ?> 
             <section class="auth-prompt">
                 <h2>Get Started</h2>
                 <p>Join our platform to create or find a post.</p>
