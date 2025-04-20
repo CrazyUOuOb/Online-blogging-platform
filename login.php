@@ -2,17 +2,19 @@
 include 'db_connect.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+    $username = $_POST['username']; # Get username from input
+    $password = $_POST['password']; # Get password from input
 
-    $sql = "SELECT * FROM users WHERE username='$username'";
+    $sql = "SELECT * FROM users WHERE username='$username'"; # Check if the user exists in the database
     $result = $conn->query($sql);
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        if (password_verify($password, $row['password'])) {
-            setcookie("user_id", $row['id'], time() + (86400 * 30), "/");
-            header("Location: index.php");
+    if ($result->num_rows > 0) { # Check if user exists by sql results with at least one attribute
+        $row = $result->fetch_assoc(); # get the user data from sql
+        if (password_verify($password, $row['password'])) { # Verify the password with the hashed password
+            # Set a cookie for the user ID for 30 days
+            setcookie("user_id", $row['id'], time() + (86400 * 30), "/"); 
+
+            header("Location: index.php"); # Redirect to the home page after successful login
             exit();
         } else {
             echo "Invalid password!";
@@ -34,8 +36,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
     
     <title>Login</title>
     <link rel="stylesheet" type="text/css" href="style.css">
