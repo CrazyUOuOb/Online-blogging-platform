@@ -1,13 +1,15 @@
 <?php
 include 'db_connect.php';
 
+# Check if user is logged in
 if (!isset($_COOKIE['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-$user_id = $_COOKIE['user_id'];
+$user_id = $_COOKIE['user_id']; # Get user ID from cookie
 
+# Get user display name and Check if user is admin
 $sql = "SELECT role, display_name FROM users WHERE id = '$user_id'";
 $result = $conn->query($sql);
 if ($result->num_rows > 0) {
@@ -19,10 +21,12 @@ if ($result->num_rows > 0) {
     exit();
 }
 
+# Get all posts with user information
 $sql = "SELECT posts.*, users.display_name 
         FROM posts 
         JOIN users ON posts.user_id = users.id 
         ORDER BY created_at DESC";
+# Store the SQL result
 $result_of_posts = $conn->query($sql);
 ?>
 
@@ -37,9 +41,7 @@ $result_of_posts = $conn->query($sql);
       gtag('js', new Date());
       gtag('config', 'G-ECF51EJ15B');
     </script>
-    <title>Online blogging platform</title>
-    <link rel="stylesheet" type="text/css" href="indexstyle.css">
-    
+
     <title>Posts</title>
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -49,9 +51,11 @@ $result_of_posts = $conn->query($sql);
             <li><a href="index.php">Home</a></li>
             <li><a href="post.php">Post</a></li>
             <li><a href="create_post.php">Create New Post</a></li>
+
             <?php if ($is_admin): ?>
                 <li><a href="manage_post.php">Manage Posts</a></li>
             <?php endif; ?>
+
             <li><a href="edit_profile.php">Edit Profile</a></li>
             <li><a href="logout.php">Logout (<?php echo $display_name; ?>)</a></li>
         </ul>
@@ -60,16 +64,19 @@ $result_of_posts = $conn->query($sql);
     <div class="container">
         <h1>Blog Posts</h1>
         
-        <?php if ($result_of_posts->num_rows > 0): ?>
+        <?php if ($result_of_posts->num_rows > 0): ?> 
             <?php while ($post = $result_of_posts->fetch_assoc()): ?>
+                <!-- Display each post with its user display name -->
                 <div class="post-summary">
                     <p class="post_meta">
                         <?= $post['display_name'] . ": " . $post['created_at'] ?>
                     </p>
+
                     <h2><a class="post_detail" href="post_detail.php?post_id=<?= $post['post_id'] ?>"><?= $post['title'] ?></a></h2>
                 </div>
             <?php endwhile; ?>
         <?php else: ?>
+            <!-- If no posts are found, display a message -->
             <p>No posts found.</p>
         <?php endif; ?>
     </div>
